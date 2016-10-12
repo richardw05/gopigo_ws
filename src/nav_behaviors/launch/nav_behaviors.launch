@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node pkg="diffdrive_controller" type="diffdrive_controller.py" name="diffdrive_controller" output="screen">
+    <param name="rate" value="1" />
+    <param name="timeout_idle" value="50" />
+    <param name="robot_wheel_separation_distance" value="0.14" />
+    <param name="robot_wheel_radius" value="0.03" />
+  </node>
+
+</launch>
