@@ -6,7 +6,6 @@ project(nav_behaviors)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   diffdrive_controller
-  diffdrive_odom
 )
 
 ## System dependencies are found with CMake's conventions

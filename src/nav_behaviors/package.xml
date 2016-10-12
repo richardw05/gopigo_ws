@@ -41,9 +41,7 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>diffdrive_controller</build_depend>
-  <build_depend>diffdrive_odom</build_depend>
   <run_depend>diffdrive_controller</run_depend>
-  <run_depend>diffdrive_odom</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
