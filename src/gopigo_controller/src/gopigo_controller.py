@@ -11,6 +11,9 @@ class ControlsToMotors:
   def __init__(self):
     rospy.init_node('gopigo_controller')
     self.rate = rospy.get_param('~rate', 50)
+    self.Kp = rospy.get_param('~Kp', 1.0)
+    self.Ki = rospy.get_param('~Ki', 1.0)
+    self.Kd = rospy.get_param('~Kd', 1.0)
 
     # Wheel can turn ~17 ticks per second which is approx 5.34 rad / s when motor_cmd = 255
     self.motor_max_angular_vel = rospy.get_param('~motor_max_angular_vel',5.32) 
@@ -21,6 +24,7 @@ class ControlsToMotors:
     self.motor_cmd_min = rospy.get_param('~motor_cmd_min',110)
 
     self.R = rospy.get_param('~robot_wheel_radius', 0.03)
+    self.pid_on = rospy.get_param('~pid_on',True)
     self.gopigo_on = rospy.get_param('~gopigo_on',False)
     if self.gopigo_on:
       import gopigo
@@ -59,6 +63,9 @@ class ControlsToMotors:
     self.lwheel_angular_vel_enc = 0
     self.rwheel_angular_vel_enc = 0
 
+    # PID control variables
+    self.lwheel_pid = {}
+    self.rwheel_pid = {}
 
   # ==================================================
   # Read in tangential velocity targets
@@ -91,6 +98,38 @@ class ControlsToMotors:
     angular_vel = tangent_vel / self.R;
     return angular_vel
 
+
+  # PID control
+  def pid_control(self,wheel_pid,target,state):
+    # Initialize pid dictionary
+    if len(wheel_pid) == 0:
+      wheel_pid.update({'time_prev':rospy.Time.now(), 'derivative':0, 'integral':0, 'error_prev':0,'error_curr':0})
+
+    wheel_pid['time_curr'] = rospy.Time.now()
+
+    # PID control
+    wheel_pid['dt'] = (wheel_pid['time_curr'] - wheel_pid['time_prev']).to_sec()
+    if wheel_pid['dt'] == 0: return 0
+
+    wheel_pid['error_curr'] = target - state
+    wheel_pid['integral'] = wheel_pid['integral'] + (wheel_pid['error_curr']*wheel_pid['dt'])
+    wheel_pid['derivative'] = (wheel_pid['error_curr'] - wheel_pid['error_prev'])/wheel_pid['dt']
+
+    wheel_pid['error_prev'] = wheel_pid['error_curr']
+    target_new = (self.Kp*wheel_pid['error_curr'] + self.Ki*wheel_pid['integral'] + self.Kd*wheel_pid['derivative'])
+
+    # Boundary cases
+#    """
+    if (target_new == 0): # Not moving
+      target_new = 0
+    elif (abs(target_new) > self.motor_max_angular_vel): # Exceed max speed
+      target_new = self.motor_max_angular_vel if target_new > 0 else -self.motor_max_angular_vel
+      wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
+    elif (abs(target_new) < self.motor_max_angular_vel): # Lower than min speed but not 0
+      target_new = self.motor_min_angular_vel if target_new > 0 else -self.motor_min_angular_vel
+      wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
+
+    return target_new
 
   # Mapping angular velocity targets to motor commands
   # Note: motor commands are ints between 0 - 255
@@ -132,6 +171,9 @@ class ControlsToMotors:
     self.lwheel_angular_vel_target = self.tangentvel_2_angularvel(self.lwheel_tangent_vel_target)
     self.lwheel_angular_vel_target_pub.publish(self.lwheel_angular_vel_target)
     
+    # If we want to adjust target angular velocity using PID controller to incorporate encoder readings
+    if self.pid_on: 
+      self.lwheel_angular_vel_target = self.pid_control(self.lwheel_pid, self.lwheel_angular_vel_target,self.lwheel_angular_vel_enc)
     self.lwheel_angular_vel_control_pub.publish(self.lwheel_angular_vel_target)
 
     # Compute motor command
@@ -146,6 +188,9 @@ class ControlsToMotors:
     self.rwheel_angular_vel_target = self.tangentvel_2_angularvel(self.rwheel_tangent_vel_target)
     self.rwheel_angular_vel_target_pub.publish(self.rwheel_angular_vel_target)
     
+    # If we want to adjust target angular velocity using PID controller to incorporate encoder readings
+    if self.pid_on: 
+      self.rwheel_angular_vel_target = self.pid_control(self.rwheel_pid, self.rwheel_angular_vel_target,self.rwheel_angular_vel_enc)
     self.rwheel_angular_vel_control_pub.publish(self.rwheel_angular_vel_target)
 
     # Compute motor command

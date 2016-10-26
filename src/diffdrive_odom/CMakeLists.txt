@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(nav_behaviors)
+project(diffdrive_odom)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  diffdrive_controller
-  diffdrive_odom
+  rospy
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -66,7 +66,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   std_msgs
 # )
 
 ################################################
@@ -100,8 +100,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES nav_behaviors
-#  CATKIN_DEPENDS diffdrive_controller diffdrive_odom
+#  LIBRARIES diffdrive_odom
+#  CATKIN_DEPENDS rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -117,24 +117,24 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(nav_behaviors
-#   src/${PROJECT_NAME}/nav_behaviors.cpp
+# add_library(diffdrive_odom
+#   src/${PROJECT_NAME}/diffdrive_odom.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(nav_behaviors ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(diffdrive_odom ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(nav_behaviors_node src/nav_behaviors_node.cpp)
+# add_executable(diffdrive_odom_node src/diffdrive_odom_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(nav_behaviors_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(diffdrive_odom_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(nav_behaviors_node
+# target_link_libraries(diffdrive_odom_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -153,7 +153,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS nav_behaviors nav_behaviors_node
+# install(TARGETS diffdrive_odom diffdrive_odom_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -178,7 +178,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_nav_behaviors.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_diffdrive_odom.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

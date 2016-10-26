@@ -3,14 +3,26 @@
 
   <node pkg="gopigo_controller" type="gopigo_controller.py" name="gopigo_controller" output="screen">
     <param name="rate" value="5" />
-    <param name="motor_max_angular_vel" value="5.64" />
-    <param name="motor_min_angular_vel" value="1.22" />
+    <param name="Kp" value="0.9" />
+    <param name="Ki" value="0.5" />
+    <param name="Kd" value="0.2" />
+    <!-- Max angular vel computed by counting the number of encoder ticks over some time.
+      rad/s = # ticks * rad/tick / dt
+       -->
+    <param name="motor_max_angular_vel" value="5.32" />
+    <param name="motor_min_angular_vel" value="1.28" />
     <param name="motor_cmd_max" value="255" />
     <param name="motor_cmd_min" value="110" />
     <param name="robot_wheel_radius" value="0.03" />
+    <param name="pid_on" value="False" />
     <param name="gopigo_on" value="True" />
   </node>
 
+  <node pkg="gopigo_state_updater" type="gopigo_state_updater.py" name="gopigo_state_updater" output="screen">
+    <param name="rate" value="1" />
+    <param name="err_tick_incr" value="5" />
+    <param name="robot_wheel_radius" value="0.03" />
+  </node>
 
 </launch>
 
