@@ -116,19 +116,20 @@ class ControlsToMotors:
     wheel_pid['derivative'] = (wheel_pid['error_curr'] - wheel_pid['error_prev'])/wheel_pid['dt']
 
     wheel_pid['error_prev'] = wheel_pid['error_curr']
-    target_new = (self.Kp*wheel_pid['error_curr'] + self.Ki*wheel_pid['integral'] + self.Kd*wheel_pid['derivative'])
+    control_signal = (self.Kp*wheel_pid['error_curr'] + self.Ki*wheel_pid['integral'] + self.Kd*wheel_pid['derivative'])
+    target_new = state + control_signal
 
     # Boundary cases
-#    """
-    if (target_new == 0): # Not moving
+    if (target == 0): # Not moving
       target_new = 0
     elif (abs(target_new) > self.motor_max_angular_vel): # Exceed max speed
       target_new = self.motor_max_angular_vel if target_new > 0 else -self.motor_max_angular_vel
       wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
-    elif (abs(target_new) < self.motor_max_angular_vel): # Lower than min speed but not 0
+    elif (abs(target_new) < self.motor_min_angular_vel): # Lower than min speed but not 0
       target_new = self.motor_min_angular_vel if target_new > 0 else -self.motor_min_angular_vel
       wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
 
+    wheel_pid['time_prev'] = wheel_pid['time_curr']
     return target_new
 
   # Mapping angular velocity targets to motor commands

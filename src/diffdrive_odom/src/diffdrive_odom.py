@@ -31,8 +31,7 @@ class OdomPublisher:
     self.child_frame_id = rospy.get_param('~child_frame_id','/base_link')
 
     self.tf_broadcaster = tf.TransformBroadcaster()
-    #self.lwheel_tangent_vel_enc = 0;
-    #self.rwheel_tangent_vel_enc = 0;
+
     self.lwheel_angular_vel_enc = 0;
     self.rwheel_angular_vel_enc = 0;
     self.pose = {'x':0, 'y': 0, 'th': 0}
@@ -40,18 +39,14 @@ class OdomPublisher:
 
   def lwheel_angular_vel_enc_callback(self, msg):
     self.lwheel_angular_vel_enc = msg.data
-    #self.lwheel_tangent_vel_enc = lwheel_angular_vel_enc * self.R
 
   def rwheel_angular_vel_enc_callback(self, msg):
     self.rwheel_angular_vel_enc = msg.data
-    #self.rwheel_tangent_vel_enc = rwheel_angular_vel_enc * self.R
 
   # Compute angular velocity target
   def angularvel_2_tangentvel(self,angular_vel):
     tangent_vel = angular_vel * self.R
     return tangent_vel
-#    angular_vel = tangent_vel / self.R;
- #   return angular_vel
 
   def pose_next(self, lwheel_tangent_vel_enc, rwheel_tangent_vel_enc):
     x = self.pose['x']; y = self.pose['y']; th = self.pose['th']
@@ -93,7 +88,6 @@ class OdomPublisher:
     self.rwheel_tangent_vel_enc_pub.publish(rwheel_tangent_vel_enc)
 
     pose_next = self.pose_next(lwheel_tangent_vel_enc, rwheel_tangent_vel_enc)
-#      return {'x':pose_next[0,0], 'y': pose_next[1,0], 'th': pose_next[2,0]}
 
     cmd_vel_enc = Twist()
     cmd_vel_enc.linear.x = pose_next['v']
