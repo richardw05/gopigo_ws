@@ -62,7 +62,6 @@ class OdomPublisher:
       w = 0
       x = x + v*dt*numpy.cos(th)
       y = y + v*dt*numpy.sin(th)
-#      return {'x': x + v*dt*numpy.cos(th), 'y': y + v*dt*numpy.sin(th), 'th': th}
 
     else:
       # Compute the instantaneous center of curvature

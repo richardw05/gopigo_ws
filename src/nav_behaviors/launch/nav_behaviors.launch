@@ -2,7 +2,7 @@
 <launch>
 
   <node pkg="diffdrive_odom" type="diffdrive_odom.py" name="diffdrive_odom" output="screen">
-    <param name="rate" value="5" />
+    <param name="rate" value="20" />
     <param name="robot_wheel_separation_distance" value="0.14" />
     <param name="robot_wheel_radius" value="0.03" />
     <param name="robot_wheel_ticks" value="20" />
@@ -11,7 +11,7 @@
   </node>
 
   <node pkg="diffdrive_controller" type="diffdrive_controller.py" name="diffdrive_controller" output="screen">
-    <param name="rate" value="1" />
+    <param name="rate" value="20" />
     <param name="timeout_idle" value="50" />
     <param name="robot_wheel_separation_distance" value="0.14" />
     <param name="robot_wheel_radius" value="0.03" />

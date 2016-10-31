@@ -101,9 +101,11 @@ class ControlsToMotors:
 
   # PID control
   def pid_control(self,wheel_pid,target,state):
+
+
     # Initialize pid dictionary
     if len(wheel_pid) == 0:
-      wheel_pid.update({'time_prev':rospy.Time.now(), 'derivative':0, 'integral':0, 'error_prev':0,'error_curr':0})
+      wheel_pid.update({'time_prev':rospy.Time.now(), 'derivative':0, 'integral':[0]*10, 'error_prev':0,'error_curr':0})
 
     wheel_pid['time_curr'] = rospy.Time.now()
 
@@ -112,22 +114,20 @@ class ControlsToMotors:
     if wheel_pid['dt'] == 0: return 0
 
     wheel_pid['error_curr'] = target - state
-    wheel_pid['integral'] = wheel_pid['integral'] + (wheel_pid['error_curr']*wheel_pid['dt'])
+    wheel_pid['integral'] = wheel_pid['integral'][1:] + [(wheel_pid['error_curr']*wheel_pid['dt'])]
     wheel_pid['derivative'] = (wheel_pid['error_curr'] - wheel_pid['error_prev'])/wheel_pid['dt']
 
     wheel_pid['error_prev'] = wheel_pid['error_curr']
-    control_signal = (self.Kp*wheel_pid['error_curr'] + self.Ki*wheel_pid['integral'] + self.Kd*wheel_pid['derivative'])
-    target_new = state + control_signal
+    control_signal = (self.Kp*wheel_pid['error_curr'] + self.Ki*sum(wheel_pid['integral']) + self.Kd*wheel_pid['derivative'])
+    target_new = target + control_signal
 
-    # Boundary cases
+    # Ensure control_signal does not flip sign of target velocity
+    if target > 0 and target_new < 0: target_new = target;
+    if target < 0 and target_new > 0: target_new = target;
+
     if (target == 0): # Not moving
       target_new = 0
-    elif (abs(target_new) > self.motor_max_angular_vel): # Exceed max speed
-      target_new = self.motor_max_angular_vel if target_new > 0 else -self.motor_max_angular_vel
-      wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
-    elif (abs(target_new) < self.motor_min_angular_vel): # Lower than min speed but not 0
-      target_new = self.motor_min_angular_vel if target_new > 0 else -self.motor_min_angular_vel
-      wheel_pid['integral'] = wheel_pid['integral'] - (wheel_pid['error_curr']*wheel_pid['dt'])
+      return target_new
 
     wheel_pid['time_prev'] = wheel_pid['time_curr']
     return target_new

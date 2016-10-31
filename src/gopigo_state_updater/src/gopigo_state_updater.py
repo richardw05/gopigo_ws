@@ -71,17 +71,22 @@ class WheelEncoderPublisher:
       dt = (time_curr_update - self.time_prev_update).to_sec()
 
       # Compute angular velocity in rad/s
-      lwheel_enc_delta = self.lwheel_encs[-1] - self.lwheel_encs[-2]
-      rwheel_enc_delta = self.rwheel_encs[-1] - self.rwheel_encs[-2]
+      lwheel_enc_delta = abs(self.lwheel_encs[-1]) - abs(self.lwheel_encs[-2])
+      rwheel_enc_delta = abs(self.rwheel_encs[-1]) - abs(self.rwheel_encs[-2])
       lwheel_angular_vel_enc = self.enc_2_rads(lwheel_enc_delta) / dt
       rwheel_angular_vel_enc = self.enc_2_rads(rwheel_enc_delta) / dt
+
+      # Adjust sign
+      if self.lwheel_encs[-1] < 0: lwheel_angular_vel_enc = -lwheel_angular_vel_enc
+      if self.rwheel_encs[-1] < 0: rwheel_angular_vel_enc = -rwheel_angular_vel_enc
       self.lwheel_angular_vel_enc_pub.publish(lwheel_angular_vel_enc)
       self.rwheel_angular_vel_enc_pub.publish(rwheel_angular_vel_enc)
 
       self.time_prev_update = time_curr_update
+
     else: # Running in simulation -- blindly copy from target assuming perfect execution
-      self.lwheel_angular_vel_enc_pub.publish(self.lwheel_angular_vel_control*.95)
-      self.rwheel_angular_vel_enc_pub.publish(self.rwheel_angular_vel_control*.95)
+      self.lwheel_angular_vel_enc_pub.publish(self.lwheel_angular_vel_control)
+      self.rwheel_angular_vel_enc_pub.publish(self.rwheel_angular_vel_control)
       
 
   def spin(self):
