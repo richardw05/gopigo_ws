@@ -16,7 +16,8 @@ class NavTimed():
 
   def update(self):
     time_duration = (rospy.Time.now() - self.time_start).to_sec()
-    if time_duration > self.time_to_run: rospy.signal_shutdown('Done nav_forward')
+    if time_duration > self.time_to_run:
+      rospy.signal_shutdown('Done nav_forward')
 
     move_cmd = Twist()
     move_cmd.linear.x = self.v_target
